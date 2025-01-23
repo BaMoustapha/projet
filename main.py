@@ -1,7 +1,7 @@
 import pandas as pd
 
 # Charger le fichier CSV dans un DataFrame
-file_path = "covid19_data.csv"  
+file_path = "covid19_data.csv"  # Vérifiez que le fichier existe à ce chemin
 df = pd.read_csv(file_path)
 
 # Vérifier les premières lignes
@@ -22,8 +22,8 @@ print(df.describe())
 # Vérification des valeurs uniques dans les colonnes catégorielles
 print("\n🔹 Valeurs uniques pour les colonnes catégorielles :")
 for col in df.select_dtypes(include=['object']).columns:
-    print(f"{col}: {df[col].unique()}") 
-    
+    print(f"{col}: {df[col].unique()[:5]}")  # Affiche les 5 premières valeurs uniques
+
 # Vérifier les valeurs manquantes
 print("\n🔹 Nombre de valeurs manquantes par colonne :")
 print(df.isnull().sum())
@@ -33,14 +33,15 @@ df = df.dropna(thresh=df.shape[1] * 0.8)
 
 # Remplacer les valeurs nulles par des valeurs par défaut
 if 'age' in df.columns:
-    df['age'].fillna(df['age'].median(), inplace=True) 
+    df['age'].fillna(df['age'].median(), inplace=True)  # Remplace les âges manquants par la médiane
+
 if 'classification' in df.columns:
-    df['classification'].fillna('Inconnu', inplace=True)  
+    df['classification'].fillna('Inconnu', inplace=True)  # Remplace les classifications manquantes
 
 # Vérification des valeurs aberrantes (ex : âge négatif ou trop élevé)
 if 'age' in df.columns:
     print("\n🔹 Vérification des valeurs aberrantes (âge) :")
-    print(df['age'].describe()) 
+    print(df['age'].describe())  # Vérifie si certains âges sont illogiques (>120 ou <0)
 
     # Suppression des âges invalides
     df = df[df['age'] > 0]
@@ -49,6 +50,7 @@ if 'age' in df.columns:
 if 'date' in df.columns:
     df['date'] = pd.to_datetime(df['date'], errors='coerce')
 
+# Création d'une colonne "groupe_age" pour catégoriser les âges
 if 'age' in df.columns:
     df['groupe_age'] = pd.cut(df['age'], bins=[0, 18, 35, 60, 120], labels=['Enfant', 'Jeune', 'Adulte', 'Senior'])
 
@@ -62,4 +64,4 @@ print(df.isnull().sum())
 
 # Sauvegarder le dataset nettoyé (optionnel)
 df.to_csv("covid19_data_cleaned.csv", index=False)
-print("\n Données nettoyées et sauvegardées sous 'covid19_data_cleaned.csv'")
+print("\n✅ Données nettoyées et sauvegardées sous 'data/covid19_data_cleaned.csv'")
